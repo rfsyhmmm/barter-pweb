@@ -31,38 +31,37 @@
             <div
                 class="bg-white rounded-3xl border border-gray-100 shadow-xs p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
 
-                <div class="flex flex-wrap items-center gap-4 flex-1">
+                <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 flex-1 w-full min-w-0">
+
                     <div
-                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[220px]">
+                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 w-full sm:w-auto sm:flex-1 min-w-0">
                         <div class="w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0 border border-gray-200">
-                            <img src="{{ asset('images/' . $trade->receiverItem->image_path) }}"
+                            <img src="{{ asset('images/items/' . $trade->receiverItem->image_path) }}"
                                 class="w-full h-full object-cover">
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <span
-                                class="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md uppercase">Barangmu</span>
-                            <h4 class="font-bold text-gray-900 text-sm truncate max-w-[140px]">
-                                {{ $trade->receiverItem->title }}</h4>
+                                class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md uppercase">Barang
+                                Target</span>
+                            <h4 class="font-bold text-gray-900 text-sm truncate">{{ $trade->receiverItem->title }}</h4>
                         </div>
                     </div>
 
-                    <div class="text-gray-400 font-bold text-xl px-2">
+                    <div class="text-gray-400 font-bold text-xl px-2 rotate-90 sm:rotate-0 shrink-0">
                         @if(!$trade->sender_item_id) 💳 @else ⇄ @endif
                     </div>
 
                     <div
-                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[240px]">
+                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 w-full sm:w-auto sm:flex-1 min-w-0">
                         @if($trade->senderItem)
                         <div class="w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0 border border-gray-200">
-                            <img src="{{ asset('images/' . $trade->senderItem->image_path) }}"
+                            <img src="{{ asset('images/items/' . $trade->senderItem->image_path) }}"
                                 class="w-full h-full object-cover">
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <span
-                                class="text-[9px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-md uppercase">Ditukar
-                                Dengan</span>
-                            <h4 class="font-bold text-gray-900 text-sm truncate max-w-[140px]">
-                                {{ $trade->senderItem->title }}</h4>
+                                class="text-[9px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-md uppercase">Tawaranmu</span>
+                            <h4 class="font-bold text-gray-900 text-sm truncate">{{ $trade->senderItem->title }}</h4>
                             @if($trade->amount > 0)
                             <p class="text-xs font-bold text-green-600 mt-0.5">+ Rp
                                 {{ number_format($trade->amount, 0, ',', '.') }}</p>
@@ -72,11 +71,11 @@
                         <div
                             class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold shrink-0 shadow-inner">
                             💰</div>
-                        <div>
+                        <div class="min-w-0">
                             <span
                                 class="text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md uppercase">Beli
                                 Langsung</span>
-                            <h4 class="font-black text-gray-900 text-base">Rp
+                            <h4 class="font-black text-gray-900 text-base truncate">Rp
                                 {{ number_format($trade->amount, 0, ',', '.') }}</h4>
                         </div>
                         @endif
@@ -163,37 +162,37 @@
             <div
                 class="bg-white rounded-3xl border border-gray-100 shadow-xs p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
 
-                <div class="flex flex-wrap items-center gap-4 flex-1">
+                <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 flex-1 w-full min-w-0">
+
                     <div
-                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[220px]">
+                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 w-full sm:w-auto sm:flex-1 min-w-0">
                         <div class="w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0 border border-gray-200">
-                            <img src="{{ asset('images/' . $trade->receiverItem->image_path) }}"
+                            <img src="{{ asset('images/items/' . $trade->receiverItem->image_path) }}"
                                 class="w-full h-full object-cover">
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <span
-                                class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md uppercase">Barang
-                                Target</span>
-                            <h4 class="font-bold text-gray-900 text-sm truncate max-w-[140px]">
-                                {{ $trade->receiverItem->title }}</h4>
+                                class="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md uppercase">Barangmu</span>
+                            <h4 class="font-bold text-gray-900 text-sm truncate">{{ $trade->receiverItem->title }}</h4>
                         </div>
                     </div>
 
-                    <div class="text-gray-400 font-bold text-xl px-2">@if(!$trade->sender_item_id) 💳 @else ⇄ @endif
+                    <div class="text-gray-400 font-bold text-xl px-2 rotate-90 sm:rotate-0 shrink-0">
+                        @if(!$trade->sender_item_id) 💳 @else ⇄ @endif
                     </div>
 
                     <div
-                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[240px]">
+                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 w-full sm:w-auto sm:flex-1 min-w-0">
                         @if($trade->senderItem)
                         <div class="w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0 border border-gray-200">
-                            <img src="{{ asset('images/' . $trade->senderItem->image_path) }}"
+                            <img src="{{ asset('images/items/' . $trade->senderItem->image_path) }}"
                                 class="w-full h-full object-cover">
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <span
-                                class="text-[9px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-md uppercase">Tawaranmu</span>
-                            <h4 class="font-bold text-gray-900 text-sm truncate max-w-[140px]">
-                                {{ $trade->senderItem->title }}</h4>
+                                class="text-[9px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-md uppercase">Ditukar
+                                Dengan</span>
+                            <h4 class="font-bold text-gray-900 text-sm truncate">{{ $trade->senderItem->title }}</h4>
                             @if($trade->amount > 0)
                             <p class="text-xs font-bold text-green-600 mt-0.5">+ Rp
                                 {{ number_format($trade->amount, 0, ',', '.') }}</p>
@@ -203,11 +202,11 @@
                         <div
                             class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold shrink-0 shadow-inner">
                             💰</div>
-                        <div>
+                        <div class="min-w-0">
                             <span
                                 class="text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md uppercase">Beli
                                 Langsung</span>
-                            <h4 class="font-black text-gray-900 text-base">Rp
+                            <h4 class="font-black text-gray-900 text-base truncate">Rp
                                 {{ number_format($trade->amount, 0, ',', '.') }}</h4>
                         </div>
                         @endif

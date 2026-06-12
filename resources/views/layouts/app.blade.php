@@ -37,6 +37,9 @@
                     class="text-gray-600 hover:text-green-600 font-semibold text-sm transition">My Inventory</a>
                 @endif
 
+                <a href="{{ route('faq') }}"
+                    class="text-sm font-medium text-gray-600 hover:text-green-600 transition">FAQ & Bantuan</a>
+
                 <form action="{{ route('logout') }}" method="POST" class="inline m-0 p-0">
                     @csrf
                     <button type="submit"
@@ -44,6 +47,7 @@
                         Sign Out
                     </button>
                 </form>
+
 
                 <a href="{{ route('profile.edit') }}"
                     class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center border border-gray-200 bg-gray-200 hover:border-green-500 transition shadow-xs"

@@ -57,6 +57,8 @@ class InventoryController extends Controller
             'status' => 'draft'
         ]);
 
+        $request->image->move(public_path('images/items'), $imageName); // Tambahkan /items
+
         return redirect()->route('inventory.index')->with('success', 'Barang berhasil ditambahkan!');
     }
 

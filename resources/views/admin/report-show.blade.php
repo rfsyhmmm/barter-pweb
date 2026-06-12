@@ -51,7 +51,7 @@
                 <div
                     class="w-full sm:w-32 h-40 sm:h-32 bg-gray-50 rounded-xl overflow-hidden shrink-0 border border-gray-200 shadow-sm">
                     @if($report->item->image_path)
-                    <img src="{{ asset('images/' . $report->item->image_path) }}" class="w-full h-full object-cover">
+                    <img src="{{ asset('images/items/' . $report->item->image_path) }}" class="w-full h-full object-cover">
                     @else
                     <div class="w-full h-full flex items-center justify-center text-3xl">🚫</div>
                     @endif

@@ -16,7 +16,7 @@
             <div class="flex items-center gap-4">
                 <div class="w-16 h-16 bg-gray-100 rounded-xl overflow-hidden shrink-0 border">
                     @if($itemCart->item->image_path)
-                    <img src="{{ asset('images/' . $itemCart->item->image_path) }}" class="w-full h-full object-cover">
+                    <img src="{{ asset('images/items/' . $itemCart->item->image_path) }}" class="w-full h-full object-cover">
                     @else
                     <div class="w-full h-full flex items-center justify-center text-gray-400">📦</div>
                     @endif

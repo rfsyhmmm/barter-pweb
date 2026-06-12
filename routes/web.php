@@ -16,6 +16,7 @@ use App\Http\Controllers\ReportController;
 // ==========================================
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+Route::view('/faq', 'pages.faq')->name('faq');
 
 // ==========================================
 // RUTE GUEST (Hanya untuk yang BELUM login)
@@ -27,6 +28,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
 });
+
+
 
 
 // ==========================================

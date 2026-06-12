@@ -21,7 +21,7 @@
             <div
                 class="w-full h-72 bg-gray-100 rounded-2xl mb-5 flex items-center justify-center text-gray-400 overflow-hidden relative">
                 @if($targetItem->image_path)
-                <img src="{{ asset('images/' . $targetItem->image_path) }}" class="w-full h-full object-cover">
+                <img src="{{ asset('images/items/' . $targetItem->image_path) }}" class="w-full h-full object-cover">
                 @else
                 <span>🚫 [Tanpa Gambar]</span>
                 @endif
@@ -123,12 +123,12 @@
                 @forelse($myInventory as $item)
                 <div class="inventory-card min-w-[150px] max-w-[150px] bg-gray-50 p-3 rounded-2xl border border-gray-200 cursor-pointer hover:border-green-500 hover:shadow-md transition duration-200"
                     data-id="{{ $item->id }}" data-title="{{ $item->title }}" data-category="{{ $item->category }}"
-                    data-image="{{ $item->image_path ? asset('images/' . $item->image_path) : '' }}">
+                    data-image="{{ $item->image_path ? asset('images/items/' . $item->image_path) : '' }}">
 
                     <div
                         class="w-full h-24 bg-white rounded-xl mb-3 flex items-center justify-center text-xs text-gray-400 overflow-hidden border border-gray-100 shadow-sm">
                         @if($item->image_path)
-                        <img src="{{ asset('images/' . $item->image_path) }}" class="w-full h-full object-cover">
+                        <img src="{{ asset('images/items/' . $item->image_path) }}" class="w-full h-full object-cover">
                         @else
                         <span>🚫</span>
                         @endif

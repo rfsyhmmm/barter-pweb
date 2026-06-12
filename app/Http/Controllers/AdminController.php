@@ -46,7 +46,7 @@ class AdminController extends Controller
         
         // Optimasi Penyimpanan: Hapus gambar fisik jika ada
         if ($item->image_path) {
-            $imagePath = public_path('images/' . $item->image_path);
+            $imagePath = public_path('images/items/' . $item->image_path);
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }

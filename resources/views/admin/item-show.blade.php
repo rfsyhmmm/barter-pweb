@@ -12,7 +12,7 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div class="md:col-span-1 bg-gray-100 rounded-2xl h-64 flex items-center justify-center overflow-hidden border">
             @if($item->image_path)
-            <img src="{{ asset('images/' . $item->image_path) }}" class="w-full h-full object-cover">
+            <img src="{{ asset('images/items/' . $item->image_path) }}" class="w-full h-full object-cover">
             @else
             <div class="text-center text-gray-400">
                 <span class="text-3xl block">🚫</span>

@@ -7,11 +7,11 @@
 <header class="max-w-5xl mx-auto px-6 pt-12 pb-6">
     <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-3xl p-8 border border-green-100/50">
         <h1 class="text-3xl font-extrabold tracking-tight md:text-4xl mb-2 text-gray-900">
-            Tukarkan Barangmu, <br class="hidden md:inline">Dapatkan yang Kamu Butuhkan.
+            Tukar Barang, Tukar Tambah, <br class="hidden md:inline">atau Beli Langsung.
         </h1>
         <p class="text-gray-500 text-sm max-w-md">
-            Marketplace barter modern tanpa uang. Cukup pilih barang yang kamu suka, ajukan penawaran dari inventory-mu,
-            dan tunggu kecocokan!
+            Marketplace hybrid khusus mahasiswa ITS. Ajukan penawaran barter murni, tambah saldo, atau bayar penuh
+            secara aman dengan sistem Escrow!
         </p>
     </div>
 </header>
@@ -57,7 +57,7 @@
                 @endauth
 
                 @if($item->image_path)
-                <img src="{{ asset('images/' . $item->image_path) }}"
+                <img src="{{ asset('images/items/' . $item->image_path) }}"
                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                 @else
                 <div class="text-gray-400 text-sm font-medium">No Image</div>
@@ -73,9 +73,13 @@
                     <span class="text-xs text-gray-500 font-medium">{{ $item->user->name }}</span>
                 </div>
 
-                <h3 class="font-bold text-lg text-gray-900 mb-1 group-hover:text-green-600 transition">
+                <h3 class="font-bold text-lg text-gray-900 mb-1 group-hover:text-green-600 transition truncate">
                     {{ $item->title }}
                 </h3>
+
+                <p class="text-xs font-bold {{ $item->price > 0 ? 'text-green-600' : 'text-blue-600' }} mb-3">
+                    {{ $item->price > 0 ? 'Rp ' . number_format($item->price, 0, ',', '.') : '🤝 Murni Barter' }}
+                </p>
 
                 <p class="text-gray-500 text-xs line-clamp-2 mb-5 flex-grow">
                     {{ $item->description }}
@@ -90,7 +94,7 @@
                     @else
                     <a href="{{ route('trade.propose', $item->id) }}"
                         class="flex-1 bg-black text-white flex items-center justify-center text-xs font-bold py-2.5 rounded-xl hover:bg-gray-800 transition shadow-xs">
-                        Ajukan Barter
+                        Ajukan Penawaran
                     </a>
 
                     <form action="{{ route('cart.store') }}" method="POST" class="flex-none m-0 p-0">

@@ -37,7 +37,7 @@
                 </span>
 
                 @if($item->image_path)
-                <img src="{{ asset('images/' . $item->image_path) }}"
+                <img src="{{ asset('images/items/' . $item->image_path) }}"
                     class="w-full h-full object-cover {{ $item->status == 'traded' ? 'grayscale opacity-70' : '' }}">
                 @else
                 <span class="text-gray-400 text-xs">No Image</span>
