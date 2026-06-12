@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Auth;
 
 class InventoryController extends Controller
@@ -38,6 +37,7 @@ class InventoryController extends Controller
             'title' => 'required|string|max:255',
             'category' => 'required|string',
             'description' => 'required|string',
+            'price' => 'nullable|numeric|min:0', // Validasi harga
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:8192'
         ]);
 
@@ -52,6 +52,7 @@ class InventoryController extends Controller
             'title' => $request->title,
             'category' => $request->category,
             'description' => $request->description,
+            'price' => $request->price ?? 0, // Simpan harga, default 0
             'image_path' => $imageName,
             'status' => 'draft'
         ]);
@@ -89,6 +90,7 @@ class InventoryController extends Controller
             'title' => 'required|string|max:255',
             'category' => 'required|string',
             'description' => 'required|string',
+            'price' => 'nullable|numeric|min:0', // Validasi harga ditambahkan
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
         ]);
 
@@ -101,6 +103,7 @@ class InventoryController extends Controller
         $item->title = $request->title;
         $item->category = $request->category;
         $item->description = $request->description;
+        $item->price = $request->price ?? 0; // Update harga
         
         $item->save();
 
@@ -124,7 +127,7 @@ class InventoryController extends Controller
      */
     public function publish(string $id)
     {
-        $myUserId = \Illuminate\Support\Facades\Auth::id();
+        $myUserId = Auth::id();
         $item = Item::where('user_id', $myUserId)->findOrFail($id);
 
         $item->status = 'available';

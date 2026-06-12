@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Item extends Model
 {
-    // Mengizinkan pengisian data (mass assignment)
+    // Mengizinkan pengisian data (mass assignment) untuk semua kolom
+    // Termasuk kolom 'price' yang baru saja kita tambahkan
     protected $guarded = [];
 
     /**

@@ -1,147 +1,327 @@
 @extends('layouts.app')
-@section('title', 'My Orders - BarterPlace')
+
+@section('title', 'Daftar Penawaran & Pesanan - BarterPlace')
+
 @section('content')
-<main class="max-w-5xl mx-auto p-6 mb-12">
+<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mb-12">
+
     <div class="mb-8">
-        <h2 class="text-2xl font-bold">My Orders</h2>
-        <p class="text-gray-400 text-sm">Kelola penawaran aktif dan riwayat transaksimu.</p>
+        <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Management Orders</h1>
+        <p class="text-gray-500 text-sm mt-1">Pantau dan eksekusi pengajuan barter, tukar tambah, atau pembelian barang
+            di sini.</p>
     </div>
 
-    <h3 class="font-bold text-lg border-b border-gray-200 pb-2 mb-4">⏳ Tawaran Aktif</h3>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        <div class="space-y-4">
-            <h4 class="font-semibold text-gray-600 text-sm">📥 Masuk ({{ $activeIncoming->count() }})</h4>
-            @forelse($activeIncoming as $trade)
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                <p class="text-sm text-gray-600 mb-3"><b>{{ $trade->sender->name }}</b> menawar
-                    <b>{{ $trade->receiverItem->title }}</b> milikmu dengan <b>{{ $trade->senderItem->title }}</b>.
-                </p>
-                <div class="flex gap-2">
-                    <form action="{{ route('orders.accept', $trade->id) }}" method="POST" class="flex-1">
+    <div class="flex border-b border-gray-200 mb-8 gap-6" id="orderTabs" role="tablist">
+        <button
+            class="tab-btn pb-4 text-sm font-bold border-b-2 border-green-600 text-green-600 transition cursor-pointer"
+            data-target="#tawaran-masuk">
+            📥 Tawaran Masuk (Sebagai Penjual)
+        </button>
+        <button
+            class="tab-btn pb-4 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-600 transition cursor-pointer"
+            data-target="#tawaran-keluar">
+            📤 Tawaran Keluar (Sebagai Pembeli)
+        </button>
+    </div>
+
+    <div id="tab-contents">
+
+        <div id="tawaran-masuk" class="tab-panel space-y-6">
+            @forelse($incomingTrades as $trade)
+            <div
+                class="bg-white rounded-3xl border border-gray-100 shadow-xs p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+
+                <div class="flex flex-wrap items-center gap-4 flex-1">
+                    <div
+                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[220px]">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0 border border-gray-200">
+                            <img src="{{ asset('images/' . $trade->receiverItem->image_path) }}"
+                                class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <span
+                                class="text-[9px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md uppercase">Barangmu</span>
+                            <h4 class="font-bold text-gray-900 text-sm truncate max-w-[140px]">
+                                {{ $trade->receiverItem->title }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="text-gray-400 font-bold text-xl px-2">
+                        @if(!$trade->sender_item_id) 💳 @else ⇄ @endif
+                    </div>
+
+                    <div
+                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[240px]">
+                        @if($trade->senderItem)
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0 border border-gray-200">
+                            <img src="{{ asset('images/' . $trade->senderItem->image_path) }}"
+                                class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <span
+                                class="text-[9px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-md uppercase">Ditukar
+                                Dengan</span>
+                            <h4 class="font-bold text-gray-900 text-sm truncate max-w-[140px]">
+                                {{ $trade->senderItem->title }}</h4>
+                            @if($trade->amount > 0)
+                            <p class="text-xs font-bold text-green-600 mt-0.5">+ Rp
+                                {{ number_format($trade->amount, 0, ',', '.') }}</p>
+                            @endif
+                        </div>
+                        @else
+                        <div
+                            class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold shrink-0 shadow-inner">
+                            💰</div>
+                        <div>
+                            <span
+                                class="text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md uppercase">Beli
+                                Langsung</span>
+                            <h4 class="font-black text-gray-900 text-base">Rp
+                                {{ number_format($trade->amount, 0, ',', '.') }}</h4>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="lg:text-right shrink-0">
+                    <p class="text-xs text-gray-400 font-medium mb-1">Oleh: <span
+                            class="text-gray-700 font-bold">{{ $trade->sender->name }}</span></p>
+
+                    @include('user.partials.status-badge', ['status' => $trade->status])
+                </div>
+
+                <div
+                    class="w-full lg:w-auto flex flex-col sm:flex-row gap-2 shrink-0 border-t lg:border-t-0 pt-4 lg:pt-0 border-gray-100">
+                    @if($trade->status === 'pending')
+                    <form action="{{ route('trade.negotiate', $trade->id) }}" method="POST" class="w-full sm:w-auto">
                         @csrf @method('PATCH')
-                        <button
-                            class="w-full bg-green-600 text-white text-xs font-bold py-2.5 rounded-lg cursor-pointer">Accept</button>
+                        <button type="submit"
+                            class="w-full sm:w-auto bg-green-600 text-white font-bold text-xs px-5 py-3 rounded-xl hover:bg-green-700 transition cursor-pointer">
+                            💬 Lanjut Diskusi WA
+                        </button>
                     </form>
-                    <form action="{{ route('orders.reject', $trade->id) }}" method="POST" class="flex-1">
+                    <form action="{{ route('trade.reject', $trade->id) }}" method="POST" class="w-full sm:w-auto">
                         @csrf @method('PATCH')
-                        <button
-                            class="w-full bg-gray-100 text-gray-600 border border-gray-200 text-xs font-bold py-2.5 rounded-lg cursor-pointer">Reject</button>
+                        <button type="submit" onclick="return confirm('Tolak penawaran ini?')"
+                            class="w-full sm:w-auto bg-white border border-gray-200 text-red-600 font-bold text-xs px-5 py-3 rounded-xl hover:bg-red-50 transition cursor-pointer">
+                            Tolak
+                        </button>
                     </form>
+
+                    @elseif($trade->status === 'negotiating')
+                    <a href="https://wa.me/{{ $trade->sender->whatsapp_number }}" target="_blank"
+                        class="w-full sm:w-auto bg-emerald-500 text-white font-bold text-xs px-5 py-3 rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-1.5 shadow-xs">
+                        📱 Hubungi Via WA
+                    </a>
+
+                    <form action="{{ route('trade.invoice', $trade->id) }}" method="POST"
+                        class="w-full sm:w-auto flex gap-1">
+                        @csrf @method('PATCH')
+                        @if($trade->amount > 0)
+                        <select name="payment_method" required
+                            class="bg-gray-50 border border-gray-200 rounded-xl px-2 text-xs font-bold focus:outline-none">
+                            <option value="Transfer">Transfer Escrow</option>
+                            <option value="COD">Tunai (COD)</option>
+                        </select>
+                        @else
+                        <input type="hidden" name="payment_method" value="COD">
+                        @endif
+                        <button type="submit"
+                            class="w-full bg-black text-white font-bold text-xs px-5 py-3 rounded-xl hover:bg-gray-800 transition cursor-pointer">
+                            🤝 Buat Tagihan
+                        </button>
+                    </form>
+
+                    @elseif($trade->status === 'awaiting_payment')
+                    <span
+                        class="text-xs font-bold text-gray-400 bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-100 block text-center">⏳
+                        Menunggu Pembayaran Pembeli</span>
+
+                    @elseif($trade->status === 'paid')
+                    <div
+                        class="bg-green-50 border border-green-200 text-green-800 p-3 rounded-xl text-xs font-medium max-w-[260px]">
+                        🎉 Pembayaran Escrow Valid. Silakan lakukan ketemuan (COD) di kampus untuk serah terima barang!
+                    </div>
+
+                    @elseif($trade->status === 'completed')
+                    <div
+                        class="bg-gray-50 border border-gray-100 text-gray-500 p-3 rounded-xl text-xs font-medium max-w-[260px]">
+                        ✅ Selesai. Dana/Barang telah berpindah tangan. Admin akan mencairkan ke rekening Anda jika
+                        melibatkan tunai.
+                    </div>
+                    @endif
                 </div>
             </div>
             @empty
-            <p class="text-xs text-gray-400 italic">Belum ada tawaran masuk.</p>
+            <div class="bg-white border border-gray-100 p-12 rounded-3xl text-center text-gray-400 text-sm">Belum ada
+                penawaran masuk dari pengguna lain.</div>
             @endforelse
         </div>
 
-        <div class="space-y-4">
-            <h4 class="font-semibold text-gray-600 text-sm">📤 Keluar ({{ $activeOutgoing->count() }})</h4>
-            @forelse($activeOutgoing as $trade)
-            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                <p class="text-sm text-gray-600 mb-3">Kamu menawar <b>{{ $trade->receiverItem->title }}</b> milik
-                    <b>{{ $trade->receiver->name }}</b> dengan <b>{{ $trade->senderItem->title }}</b>.
-                </p>
-                <form action="{{ route('orders.cancel', $trade->id) }}" method="POST">
-                    @csrf @method('DELETE')
-                    <button
-                        class="w-full bg-red-50 text-red-600 border border-red-200 text-xs font-bold py-2.5 rounded-lg cursor-pointer">Cancel
-                        Order</button>
-                </form>
+        <div id="tawaran-keluar" class="tab-panel space-y-6 hidden">
+            @forelse($outgoingTrades as $trade)
+            <div
+                class="bg-white rounded-3xl border border-gray-100 shadow-xs p-6 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+
+                <div class="flex flex-wrap items-center gap-4 flex-1">
+                    <div
+                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[220px]">
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0 border border-gray-200">
+                            <img src="{{ asset('images/' . $trade->receiverItem->image_path) }}"
+                                class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <span
+                                class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md uppercase">Barang
+                                Target</span>
+                            <h4 class="font-bold text-gray-900 text-sm truncate max-w-[140px]">
+                                {{ $trade->receiverItem->title }}</h4>
+                        </div>
+                    </div>
+
+                    <div class="text-gray-400 font-bold text-xl px-2">@if(!$trade->sender_item_id) 💳 @else ⇄ @endif
+                    </div>
+
+                    <div
+                        class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 min-w-[240px]">
+                        @if($trade->senderItem)
+                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white shrink-0 border border-gray-200">
+                            <img src="{{ asset('images/' . $trade->senderItem->image_path) }}"
+                                class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <span
+                                class="text-[9px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-md uppercase">Tawaranmu</span>
+                            <h4 class="font-bold text-gray-900 text-sm truncate max-w-[140px]">
+                                {{ $trade->senderItem->title }}</h4>
+                            @if($trade->amount > 0)
+                            <p class="text-xs font-bold text-green-600 mt-0.5">+ Rp
+                                {{ number_format($trade->amount, 0, ',', '.') }}</p>
+                            @endif
+                        </div>
+                        @else
+                        <div
+                            class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold shrink-0 shadow-inner">
+                            💰</div>
+                        <div>
+                            <span
+                                class="text-[9px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md uppercase">Beli
+                                Langsung</span>
+                            <h4 class="font-black text-gray-900 text-base">Rp
+                                {{ number_format($trade->amount, 0, ',', '.') }}</h4>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="lg:text-right shrink-0">
+                    <p class="text-xs text-gray-400 font-medium mb-1">Penjual: <span
+                            class="text-gray-700 font-bold">{{ $trade->receiver->name }}</span></p>
+                    @include('user.partials.status-badge', ['status' => $trade->status])
+                </div>
+
+                <div
+                    class="w-full lg:w-auto flex flex-col gap-2 shrink-0 border-t lg:border-t-0 pt-4 lg:pt-0 border-gray-100">
+                    @if($trade->status === 'pending')
+                    <span
+                        class="text-xs font-bold text-gray-400 bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-100 block text-center">⏳
+                        Menunggu Respon Penjual...</span>
+
+                    @elseif($trade->status === 'negotiating')
+                    <a href="https://wa.me/{{ $trade->receiver->whatsapp_number }}" target="_blank"
+                        class="w-full text-center bg-emerald-500 text-white font-bold text-xs px-5 py-3 rounded-xl hover:bg-emerald-600 transition flex items-center justify-center gap-1.5 shadow-xs">
+                        📱 Diskusi via WhatsApp
+                    </a>
+
+                    @elseif($trade->status === 'awaiting_payment')
+                    @if($trade->payment_method === 'Transfer')
+                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-2xl max-w-[320px]">
+                        <p class="text-xs font-bold text-blue-900 mb-2">💳 Selesaikan Invoice Transfer Escrow</p>
+                        <p class="text-[11px] text-blue-700 leading-relaxed mb-3">Silakan transfer pas sejumlah nominal
+                            ke Rekening Admin BarterPlace:<br><b class="text-gray-900">Mandiri 141-00123-4567 a/n Rekber
+                                BarterPlace</b></p>
+
+                        <form action="{{ route('trade.uploadProof', $trade->id) }}" method="POST"
+                            enctype="multipart/form-data" class="space-y-2">
+                            @csrf @method('PATCH')
+                            <input type="file" name="payment_proof" required accept="image/*"
+                                class="w-full text-[10px] bg-white border p-1 rounded-lg">
+                            <button type="submit"
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] py-2 rounded-lg transition">Kirim
+                                Bukti Transfer</button>
+                        </form>
+                    </div>
+                    @else
+                    <div
+                        class="bg-amber-50 border border-amber-100 p-3 rounded-xl text-xs text-amber-800 max-w-[260px]">
+                        🤝 <b>Tagihan COD Terbit:</b> Silakan ketemuan langsung di kampus ITS. Siapkan uang pas tunai
+                        senilai <b>Rp {{ number_format($trade->amount, 0, ',', '.') }}</b> saat bertemu.
+                    </div>
+                    <form action="{{ route('trade.complete', $trade->id) }}" method="POST" class="mt-2">
+                        @csrf @method('PATCH')
+                        <button type="submit"
+                            onclick="return confirm('Pastikan Anda sudah memegang barang dan menyerahkan uang tunai!')"
+                            class="w-full bg-green-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl hover:bg-green-700 transition">
+                            ✅ Konfirmasi Barang Diterima (COD)
+                        </button>
+                    </form>
+                    @endif
+
+                    @elseif($trade->status === 'paid')
+                    <div class="bg-green-50 border border-green-100 p-3 rounded-xl text-xs text-green-800 mb-2">
+                        🔒 <b>Escrow Aman:</b> Uang Anda sudah berada di sistem BarterPlace.
+                    </div>
+                    <form action="{{ route('trade.complete', $trade->id) }}" method="POST">
+                        @csrf @method('PATCH')
+                        <button type="submit"
+                            onclick="return confirm('Konfirmasi bahwa barang sudah Anda terima dengan baik saat COD?')"
+                            class="w-full bg-green-600 text-white font-bold text-xs px-5 py-3 rounded-xl hover:bg-green-700 transition shadow-sm">
+                            ✅ Konfirmasi Barang Diterima
+                        </button>
+                    </form>
+
+                    @elseif($trade->status === 'completed')
+                    <span
+                        class="text-xs font-bold text-green-700 bg-green-50 px-4 py-2.5 rounded-xl border border-green-100 block text-center">🎉
+                        Transaksi Sukses Selesai</span>
+                    @endif
+                </div>
+
             </div>
             @empty
-            <p class="text-xs text-gray-400 italic">Belum ada tawaran keluar.</p>
+            <div class="bg-white border border-gray-100 p-12 rounded-3xl text-center text-gray-400 text-sm">Kamu belum
+                mengajukan penawaran ke barang siapa pun.</div>
             @endforelse
         </div>
-    </div>
 
-    <h3 class="font-bold text-lg text-green-700 border-b border-gray-200 pb-2 mb-4">✅ Tawaran Diterima</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
-        @forelse($acceptedTrades as $trade)
-        @php
-        $isSender = $trade->sender_id == auth()->id();
-        $partner = $isSender ? $trade->receiver : $trade->sender;
-
-        $myItem = $isSender ? $trade->senderItem : $trade->receiverItem;
-        $partnerItem = $isSender ? $trade->receiverItem : $trade->senderItem;
-
-        $waNumber = $partner->whatsapp_number;
-        if($waNumber && str_starts_with($waNumber, '0')) $waNumber = '62' . substr($waNumber, 1);
-        $msg = urlencode("Halo {$partner->name}! Kita deal barter *{$myItem->title}* (milikku) dengan
-        *{$partnerItem->title}* (milikmu). Kapan COD?");
-        @endphp
-        <div class="bg-green-50 p-4 rounded-xl border border-green-200 shadow-sm flex flex-col justify-between">
-
-            <div class="flex items-center justify-between mb-4 bg-white p-3 rounded-lg border border-green-100">
-                <div class="flex items-center gap-3 w-[45%]">
-                    <div class="w-10 h-10 bg-gray-200 rounded-md overflow-hidden shrink-0">
-                        @if($myItem->image_path) <img src="{{ asset('images/' . $myItem->image_path) }}"
-                            class="w-full h-full object-cover"> @else <div
-                            class="w-full h-full flex items-center justify-center text-xs">📦</div> @endif
-                    </div>
-                    <div class="truncate">
-                        <h4 class="font-bold text-xs text-gray-900 truncate">{{ $myItem->title }}</h4>
-                        <p class="text-[9px] text-green-600 font-bold mt-0.5 truncate">Barangmu</p>
-                    </div>
-                </div>
-                <div class="text-green-400 text-sm font-bold shrink-0 px-1">⇄</div>
-                <div class="flex items-center gap-3 w-[45%] justify-end text-right">
-                    <div class="truncate">
-                        <h4 class="font-bold text-xs text-gray-900 truncate">{{ $partnerItem->title }}</h4>
-                        <p class="text-[9px] text-gray-500 font-semibold mt-0.5 truncate">{{ $partner->name }}</p>
-                    </div>
-                    <div class="w-10 h-10 bg-gray-200 rounded-md overflow-hidden shrink-0">
-                        @if($partnerItem->image_path) <img src="{{ asset('images/' . $partnerItem->image_path) }}"
-                            class="w-full h-full object-cover"> @else <div
-                            class="w-full h-full flex items-center justify-center text-xs">📦</div> @endif
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex gap-2">
-                @if($waNumber)
-                <a href="https://wa.me/{{ $waNumber }}?text={{ $msg }}" target="_blank"
-                    class="flex-1 flex items-center justify-center bg-green-600 text-white text-xs font-bold py-2.5 rounded-lg hover:bg-green-700 cursor-pointer">💬
-                    Chat WA</a>
-                @else
-                <span
-                    class="flex-1 flex items-center justify-center bg-gray-200 text-gray-500 text-xs font-bold py-2.5 rounded-lg">No
-                    WA</span>
-                @endif
-
-                <form action="{{ route('orders.cancelDeal', $trade->id) }}" method="POST" class="flex-none">
-                    @csrf @method('PATCH')
-                    <button type="submit" onclick="return confirm('Batal COD dan kembalikan kedua barang ke market?')"
-                        class="bg-white border border-red-200 text-red-500 hover:bg-red-50 text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition">Batal
-                        Deal</button>
-                </form>
-            </div>
-
-        </div>
-        @empty
-        <p class="text-xs text-gray-400 italic col-span-full">Belum ada transaksi berhasil.</p>
-        @endforelse
-    </div>
-
-    <div class="flex justify-between items-end border-b border-gray-200 pb-2 mb-4">
-        <h3 class="font-bold text-lg text-red-700">❌ Tawaran Ditolak</h3>
-        @if($rejectedTrades->count() > 0)
-        <form action="{{ route('orders.clearRejected') }}" method="POST">
-            @csrf @method('DELETE')
-            <button type="submit" onclick="return confirm('Hapus semua riwayat ditolak?')"
-                class="text-xs font-bold text-red-500 hover:underline cursor-pointer">🗑️ Bersihkan Semua</button>
-        </form>
-        @endif
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        @forelse($rejectedTrades as $trade)
-        <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
-            <p class="text-xs text-gray-500">Barter <b>{{ $trade->senderItem->title }}</b> &
-                <b>{{ $trade->receiverItem->title }}</b> batal.
-            </p>
-        </div>
-        @empty
-        <p class="text-xs text-gray-400 italic col-span-full">Riwayat bersih.</p>
-        @endforelse
     </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Hilangkan status aktif dari semua tombol
+            tabButtons.forEach(btn => {
+                btn.classList.remove('border-green-600', 'text-green-600');
+                btn.classList.add('border-transparent', 'text-gray-400');
+            });
+
+            // Set tombol aktif
+            this.classList.remove('border-transparent', 'text-gray-400');
+            this.classList.add('border-green-600', 'text-green-600');
+
+            // Sembunyikan semua panel konten
+            tabPanels.forEach(panel => panel.classList.add('hidden'));
+
+            // Tampilkan panel target
+            const targetSelector = this.getAttribute('data-target');
+            document.querySelector(targetSelector).classList.remove('hidden');
+        });
+    });
+});
+</script>
 @endsection

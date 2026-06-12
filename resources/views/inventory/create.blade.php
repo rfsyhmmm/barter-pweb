@@ -1,76 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add New Item</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</head>
+@section('title', 'Tambah Barang - BarterPlace')
 
-<body class="bg-gray-50 text-gray-800">
-
-    <main class="max-w-2xl mx-auto p-6">
+@section('content')
+<main class="max-w-2xl mx-auto p-6 mb-12 mt-8">
+    <div class="mb-6">
         <a href="{{ route('inventory.index') }}"
-            class="text-sm text-gray-400 hover:text-gray-600 mb-6 inline-block">&larr; Kembali ke Inventory</a>
+            class="text-sm text-gray-500 hover:text-gray-900 transition flex items-center gap-2">
+            &larr; Kembali ke Inventory
+        </a>
+    </div>
 
-        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-            <h2 class="text-2xl font-bold mb-2">Add New Item</h2>
-            <p class="text-gray-400 text-sm mb-8">Masukkan detail barang yang ingin kamu tawarkan.</p>
-
-            @if ($errors->any())
-            <div class="bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-sm">
-                <ul class="list-disc pl-5">
-                    @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            <form action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                <form action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data"
-                    class="space-y-6">
-                    @csrf
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Item Name</label>
-                        <input type="text" name="title" required
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500"
-                            placeholder="Contoh: Kamera Analog Nikon">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Category</label>
-                        <select name="category" required
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500">
-                            <option value="Electronics">Electronics</option>
-                            <option value="Musical">Musical</option>
-                            <option value="Home & Garden">Home & Garden</option>
-                            <option value="Hobby">Hobby</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Description</label>
-                        <textarea name="description" rows="4" required
-                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500"
-                            placeholder="Ceritakan kondisi barang kamu..."></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Item Photo</label>
-                        <input type="file" name="image"
-                            class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-600 hover:file:bg-gray-200">
-                    </div>
-
-                    <button type="submit"
-                        class="w-full bg-green-600 text-white font-bold py-4 rounded-2xl hover:bg-green-700 transition shadow-lg shadow-green-100">
-                        Save to Inventory
-                    </button>
-                </form>
+    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-green-50 border-b border-green-100 p-6">
+            <h2 class="text-xl font-bold text-green-900">📦 Tambah Barang Baru</h2>
+            <p class="text-sm text-green-700 mt-1">Masukkan detail barang yang ingin kamu tawarkan di BarterPlace.</p>
         </div>
-    </main>
 
-</body>
+        <form action="{{ route('inventory.store') }}" method="POST" enctype="multipart/form-data"
+            class="p-6 sm:p-8 space-y-6">
+            @csrf
 
-</html>
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Nama Barang <span
+                        class="text-red-500">*</span></label>
+                <input type="text" name="title" required placeholder="Contoh: Buku Pemrograman Laravel 11"
+                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-green-500 focus:border-green-500 outline-none transition">
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Kategori <span
+                        class="text-red-500">*</span></label>
+                <select name="category" required
+                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-green-500 focus:border-green-500 outline-none transition bg-white">
+                    <option value="" disabled selected>-- Pilih Kategori --</option>
+                    <option value="Buku & Alat Tulis">Buku & Alat Tulis</option>
+                    <option value="Elektronik & Gadget">Elektronik & Gadget</option>
+                    <option value="Fashion & Pakaian">Fashion & Pakaian</option>
+                    <option value="Perlengkapan Kos">Perlengkapan Kos</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Harga Patokan (Rupiah)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-gray-400 text-sm">Rp</span>
+                    <input type="number" name="price" value="0" min="0" placeholder="0"
+                        class="w-full border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-sm focus:ring-green-500 focus:border-green-500 outline-none transition">
+                </div>
+                <p class="text-xs text-gray-400 mt-2">Isi <span class="font-bold">0</span> jika barang ini hanya murni
+                    untuk barter tanpa tambahan opsi pembelian/uang.</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Deskripsi Kondisi Barang <span
+                        class="text-red-500">*</span></label>
+                <textarea name="description" required rows="4"
+                    placeholder="Jelaskan kondisi barang secara jujur (misal: minus pemakaian, kelengkapan kotak, dll)..."
+                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-green-500 focus:border-green-500 outline-none transition"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-gray-700 mb-2">Foto Barang <span
+                        class="text-red-500">*</span></label>
+                <input type="file" name="image" required accept="image/*"
+                    class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition cursor-pointer">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-green-600 text-white font-bold py-3.5 rounded-xl hover:bg-green-700 transition cursor-pointer shadow-md">
+                Pasang Barang
+            </button>
+        </form>
+    </div>
+</main>
+@endsection

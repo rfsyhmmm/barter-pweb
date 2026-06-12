@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Trade extends Model
 {
+    // Mengizinkan pengisian data untuk semua kolom
     protected $guarded = [];
 
     public function sender(): BelongsTo

@@ -4,8 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TradeController;
 use App\Http\Controllers\InventoryController; 
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderController; // (Opsional jika masih ada fungsi lama yang ingin dipakai)
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ReportController;
 
 // ==========================================
 // RUTE PUBLIK (Bisa diakses siapa saja)
@@ -36,50 +40,58 @@ Route::middleware('auth')->group(function () {
     Route::resource('inventory', InventoryController::class);
     Route::patch('/inventory/{id}/publish', [InventoryController::class, 'publish'])->name('inventory.publish');
 
-    // Order & Cancel
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::delete('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    // ==========================================
+    // ORDER & TRADE MANAGEMENT (Alur Baru Hibrida)
+    // ==========================================
+    // Halaman utama Orders (Tawaran Masuk & Keluar)
+    Route::get('/orders', [TradeController::class, 'index'])->name('orders.index');
     
-    // TAMBAHKAN DUA BARIS INI:
-    Route::patch('/orders/{id}/accept', [OrderController::class, 'accept'])->name('orders.accept');
-    Route::patch('/orders/{id}/reject', [OrderController::class, 'reject'])->name('orders.reject');
+    // Propose Trade / Ajukan Barter
+    Route::get('/trade/propose/{item_id}', [TradeController::class, 'create'])->name('trade.propose');
+    Route::post('/trade/store', [TradeController::class, 'store'])->name('trade.store');
 
-    // Propose Trade
-    Route::get('/propose-trade/{id}', [TradeController::class, 'propose'])->name('trade.propose');
-    Route::post('/propose-trade', [TradeController::class, 'store'])->name('trade.store');
+    // Aksi Transaksi Penjual & Pembeli (2-Step Acceptance & Escrow)
+    Route::patch('/trade/{id}/negotiate', [TradeController::class, 'negotiate'])->name('trade.negotiate');
+    Route::patch('/trade/{id}/reject', [TradeController::class, 'reject'])->name('trade.reject');
+    Route::patch('/trade/{id}/invoice', [TradeController::class, 'invoice'])->name('trade.invoice');
+    Route::patch('/trade/{id}/upload-proof', [TradeController::class, 'uploadProof'])->name('trade.uploadProof');
+    Route::patch('/trade/{id}/complete', [TradeController::class, 'complete'])->name('trade.complete');
 
-    Route::delete('/orders/{id}/history', [\App\Http\Controllers\OrderController::class, 'destroyHistory'])->name('orders.destroyHistory');
+    // (Rute lama OrderController untuk cancel / history bisa dihapus atau diamankan jika tidak bentrok)
+    Route::delete('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::delete('/orders/{id}/history', [OrderController::class, 'destroyHistory'])->name('orders.destroyHistory');
+    Route::delete('/orders/clear-rejected', [OrderController::class, 'clearRejected'])->name('orders.clearRejected');
+    Route::patch('/orders/{id}/cancel-deal', [OrderController::class, 'cancelDeal'])->name('orders.cancelDeal');
+    // ==========================================
 
     // Profile Management
-    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // Cart Management
-    Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart', [\App\Http\Controllers\CartController::class, 'store'])->name('cart.store');
-    Route::delete('/cart/{id}', [\App\Http\Controllers\CartController::class, 'destroy'])->name('cart.destroy');
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+    Route::delete('/cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
-    Route::delete('/orders/clear-rejected', [\App\Http\Controllers\OrderController::class, 'clearRejected'])->name('orders.clearRejected');
+    // Fitur Report Barang
+    Route::get('/item/{id}/report', [ReportController::class, 'create'])->name('report.create');
+    Route::post('/item/{id}/report', [ReportController::class, 'store'])->name('report.store');
 
-    Route::patch('/orders/{id}/cancel-deal', [OrderController::class, 'cancelDeal'])->name('orders.cancelDeal');
-
-    // Rute Khusus Admin (Dilindungi middleware 'auth' dan 'admin')
+    // ==========================================
+    // RUTE KHUSUS ADMIN
+    // ==========================================
     Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    
-    // Halaman Dashboard Admin
-    Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('dashboard');
-    // show item
-    Route::get('/item/{id}', [\App\Http\Controllers\AdminController::class, 'showItem'])->name('item.show');
-    // Fitur Takedown Barang
-    Route::patch('/item/{id}/takedown', [\App\Http\Controllers\AdminController::class, 'takedownItem'])->name('item.takedown');
-    
-    Route::patch('/user/{id}/toggle-ban', [\App\Http\Controllers\AdminController::class, 'toggleUserBan'])->name('user.toggleBan');
-
-    // Detail untuk klik baris tabel
-    Route::get('/user/{id}', [\App\Http\Controllers\AdminController::class, 'showUser'])->name('user.show');
-    Route::get('/report/{id}', [\App\Http\Controllers\AdminController::class, 'showReport'])->name('report.show');
-});
-// Fitur Report Barang
-    Route::get('/item/{id}/report', [\App\Http\Controllers\ReportController::class, 'create'])->name('report.create');
-    Route::post('/item/{id}/report', [\App\Http\Controllers\ReportController::class, 'store'])->name('report.store');
+        
+        // Halaman Dashboard Admin
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        
+        // Fitur Barang
+        Route::get('/item/{id}', [AdminController::class, 'showItem'])->name('item.show');
+        Route::patch('/item/{id}/takedown', [AdminController::class, 'takedownItem'])->name('item.takedown');
+        
+        // Fitur Pengguna & Laporan
+        Route::patch('/user/{id}/toggle-ban', [AdminController::class, 'toggleUserBan'])->name('user.toggleBan');
+        Route::get('/user/{id}', [AdminController::class, 'showUser'])->name('user.show');
+        Route::get('/report/{id}', [AdminController::class, 'showReport'])->name('report.show');
+    });
 });
