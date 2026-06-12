@@ -59,6 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/trade/{id}/invoice', [TradeController::class, 'invoice'])->name('trade.invoice');
     Route::patch('/trade/{id}/upload-proof', [TradeController::class, 'uploadProof'])->name('trade.uploadProof');
     Route::patch('/trade/{id}/complete', [TradeController::class, 'complete'])->name('trade.complete');
+    Route::delete('/trade/{id}/cancel', [TradeController::class, 'cancel'])->name('trade.cancel');
 
     // (Rute lama OrderController untuk cancel / history bisa dihapus atau diamankan jika tidak bentrok)
     Route::delete('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');

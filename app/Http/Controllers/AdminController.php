@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Item;
 use App\Models\Trade;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
@@ -15,7 +14,9 @@ class AdminController extends Controller
     {
         $totalUsers = User::where('role', 'user')->count();
         $totalItems = Item::count();
-        $successfulTrades = Trade::where('status', 'accepted')->count();
+        
+        // [PERBAIKAN] Mengubah parameter dari 'accepted' menjadi 'completed'
+        $successfulTrades = Trade::where('status', 'completed')->count();
 
         $recentItems = Item::with('user')->latest()->take(5)->get();
         $usersList = User::where('role', 'user')->latest()->get();
@@ -46,7 +47,7 @@ class AdminController extends Controller
         
         // Optimasi Penyimpanan: Hapus gambar fisik jika ada
         if ($item->image_path) {
-            $imagePath = public_path('images/items/' . $item->image_path);
+            $imagePath = public_path('images/items/' . $item->image_path); // Pastikan mengarah ke /items/
             if (file_exists($imagePath)) {
                 unlink($imagePath);
             }

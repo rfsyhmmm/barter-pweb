@@ -26,25 +26,30 @@ class InventoryController extends Controller
         return view('inventory.create');
     }
 
-    /**
+/**
      * STORE: Menyimpan barang baru ke database
      */
     public function store(Request $request)
     {
         $myUserId = Auth::id();
 
+        // Di dalam fungsi store() dan update()
         $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|string',
             'description' => 'required|string',
-            'price' => 'nullable|numeric|min:0', // Validasi harga
+            'price' => 'nullable|numeric|min:0|max:1000000000', 
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:8192'
+        ], [
+
+            'price.max' => 'Harga barang tidak boleh lebih dari Rp 1.000.000.000 (1 Miliar).'
         ]);
 
         $imageName = null;
         if ($request->hasFile('image')) {
             $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('images'), $imageName);
+            // PASTIKAN HANYA ADA SATU BARIS MOVE INI:
+            $request->image->move(public_path('images/items'), $imageName);
         }
 
         Item::create([
@@ -52,12 +57,10 @@ class InventoryController extends Controller
             'title' => $request->title,
             'category' => $request->category,
             'description' => $request->description,
-            'price' => $request->price ?? 0, // Simpan harga, default 0
+            'price' => $request->price ?? 0,
             'image_path' => $imageName,
             'status' => 'draft'
         ]);
-
-        $request->image->move(public_path('images/items'), $imageName); // Tambahkan /items
 
         return redirect()->route('inventory.index')->with('success', 'Barang berhasil ditambahkan!');
     }
@@ -92,20 +95,32 @@ class InventoryController extends Controller
             'title' => 'required|string|max:255',
             'category' => 'required|string',
             'description' => 'required|string',
-            'price' => 'nullable|numeric|min:0', // Validasi harga ditambahkan
+            'price' => 'nullable|numeric|min:0|max:1000000000',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
+        ], [
+            'price.max' => 'Harga barang tidak boleh lebih dari Rp 1.000.000.000 (1 Miliar).'
         ]);
 
         if ($request->hasFile('image')) {
             $imageName = time() . '.' . $request->image->extension();
-            $request->image->move(public_path('images'), $imageName);
+            
+            // Hapus gambar lama jika ada (agar hosting tidak penuh)
+            if ($item->image_path) {
+                $oldImagePath = public_path('images/items/' . $item->image_path);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+
+            // Pindahkan gambar baru
+            $request->image->move(public_path('images/items'), $imageName);
             $item->image_path = $imageName; 
         }
 
         $item->title = $request->title;
         $item->category = $request->category;
         $item->description = $request->description;
-        $item->price = $request->price ?? 0; // Update harga
+        $item->price = $request->price ?? 0;
         
         $item->save();
 

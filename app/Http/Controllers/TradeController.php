@@ -36,6 +36,11 @@ class TradeController extends Controller
      */
     public function create(string $itemId)
     {
+        // [TAMBAHAN BARU] Cek apakah Pembeli sudah punya nomor WA
+        if (empty(Auth::user()->whatsapp_number)) {
+            return redirect()->route('profile.edit')->with('error', '⚠️ Akses ditolak: Silakan lengkapi Nomor WhatsApp kamu di profil terlebih dahulu agar penjual bisa menghubungimu nanti.');
+        }
+
         $targetItem = Item::with('user')->findOrFail($itemId);
         
         // Ambil barang milik sendiri yang berstatus available untuk ditawarkan
@@ -95,6 +100,12 @@ class TradeController extends Controller
      */
     public function negotiate(string $id)
     {
+        // [TAMBAHAN BARU] Cek apakah Penjual sudah punya nomor WA & Rekening
+        $user = Auth::user();
+        if (empty($user->whatsapp_number) || empty($user->bank_name) || empty($user->bank_account_number)) {
+            return redirect()->route('profile.edit')->with('error', '⚠️ Tindakan dicegah: Lengkapi Nomor WhatsApp dan Data Rekening Pencairan di profil kamu terlebih dahulu sebelum memproses pesanan.');
+        }
+
         $trade = Trade::where('receiver_id', Auth::id())->findOrFail($id);
         $trade->update(['status' => 'negotiating']);
 
@@ -162,11 +173,25 @@ class TradeController extends Controller
     }
 
     /**
-     * FULFILLMENT COMPLETE: Pembeli mengonfirmasi barang telah diterima dengan baik saat COD
+     * CANCEL: Pembeli membatalkan penawarannya sendiri sebelum direspon penjual
+     */
+    public function cancel(string $id)
+    {
+        $trade = Trade::where('sender_id', Auth::id())
+            ->where('status', 'pending')
+            ->findOrFail($id);
+            
+        // Hapus tawaran dari database agar tidak nyangkut di history
+        $trade->delete();
+
+        return redirect()->back()->with('success', 'Tawaran kamu berhasil dibatalkan.');
+    }
+
+    /**
+     * FULFILLMENT COMPLETE: Pembeli mengonfirmasi barang diterima & THE SWEEPER aktif
      */
     public function complete(string $id)
     {
-        // Pembeli yang berhak menekan tombol ini demi keamanan transaksi
         $trade = Trade::where('sender_id', Auth::id())->findOrFail($id);
         
         $trade->update(['status' => 'completed']);
@@ -181,6 +206,24 @@ class TradeController extends Controller
             $trade->senderItem->update(['status' => 'traded']);
         }
 
-        return redirect()->back()->with('success', '🎉 Selamat! Transaksi selesai dituntaskan.');
+        // ==========================================
+        // THE SWEEPER (Penyapuan Konflik Otomatis)
+        // ==========================================
+        // Ambil ID barang-barang yang terlibat dan sudah laku ini
+        $itemIdsToSweep = array_filter([$trade->receiver_item_id, $trade->sender_item_id]);
+
+        if (!empty($itemIdsToSweep)) {
+            // Tolak paksa (Auto-Reject) SEMUA transaksi pending/negotiating lain milik orang lain
+            // yang memperebutkan salah satu dari barang yang baru saja laku ini
+            Trade::whereIn('status', ['pending', 'negotiating'])
+                ->where('id', '!=', $trade->id) // Jangan sentuh transaksi yang barusan sukses ini
+                ->where(function ($query) use ($itemIdsToSweep) {
+                    $query->whereIn('sender_item_id', $itemIdsToSweep)
+                          ->orWhereIn('receiver_item_id', $itemIdsToSweep);
+                })
+                ->update(['status' => 'rejected']);
+        }
+
+        return redirect()->back()->with('success', '🎉 Transaksi selesai! Penawaran dari user lain untuk barang ini telah otomatis ditolak sistem.');
     }
 }
