@@ -1,0 +1,32 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('trades', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('sender_id')->constrained('users')->onDelete('cascade'); // Yang ngajak barter
+            $table->foreignId('receiver_id')->constrained('users')->onDelete('cascade'); // Yang punya barang target
+            $table->foreignId('sender_item_id')->constrained('items')->onDelete('cascade'); // Barang penawar
+            $table->foreignId('receiver_item_id')->constrained('items')->onDelete('cascade'); // Barang target
+            $table->string('status')->default('pending'); // pending, accepted, rejected
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('trades');
+    }
+};
