@@ -15,8 +15,8 @@ use App\Http\Controllers\ReportController;
 // RUTE PUBLIK (Bisa diakses siapa saja)
 // ==========================================
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
 Route::view('/faq', 'pages.faq')->name('faq');
+Route::get('/user/{id}', [ProfileController::class, 'show'])->name('user.show');
 
 // ==========================================
 // RUTE GUEST (Hanya untuk yang BELUM login)

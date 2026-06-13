@@ -70,7 +70,10 @@
                         class="w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center text-[10px] font-bold">
                         {{ strtoupper(substr($item->user->name, 0, 1)) }}
                     </div>
-                    <span class="text-xs text-gray-500 font-medium">{{ $item->user->name }}</span>
+                    <a href="{{ route('user.show', $item->user->id) }}"
+                        class="text-xs text-gray-500 font-medium hover:text-green-600 hover:underline transition">
+                        {{ $item->user->name }}
+                    </a>
                 </div>
 
                 <h3 class="font-bold text-lg text-gray-900 mb-1 group-hover:text-green-600 transition truncate">

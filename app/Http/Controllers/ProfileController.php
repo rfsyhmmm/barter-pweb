@@ -59,4 +59,33 @@ class ProfileController extends Controller
 
         return redirect()->route('profile.edit')->with('success', 'Profil dan data rekening kamu berhasil diperbarui!');
     }
+
+    /**
+     * Menampilkan profil publik pengguna (Etalase)
+     */
+    public function show(string $id)
+    {
+        $user = User::findOrFail($id);
+
+        // Fitur Keamanan: Jika user diblokir Admin, sembunyikan profilnya
+        if ($user->status === 'banned') {
+            return redirect()->route('home')->with('error', 'Profil pengguna ini tidak tersedia karena akun sedang dibekukan oleh sistem.');
+        }
+
+        // Ambil semua barang milik user yang berstatus 'available' (Etalase Publik)
+        $items = \App\Models\Item::where('user_id', $user->id)
+            ->where('status', 'available')
+            ->latest()
+            ->get();
+
+        // Hitung statistik (Bukti Reputasi / Trust System)
+        // Hitung total transaksi sukses di mana user ini terlibat
+        $successfulTrades = \App\Models\Trade::where('status', 'completed')
+            ->where(function ($query) use ($user) {
+                $query->where('sender_id', $user->id)
+                      ->orWhere('receiver_id', $user->id);
+            })->count();
+
+        return view('profile.show', compact('user', 'items', 'successfulTrades'));
+    }
 }
