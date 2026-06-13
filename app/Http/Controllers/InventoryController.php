@@ -121,7 +121,6 @@ class InventoryController extends Controller
         $item->category = $request->category;
         $item->description = $request->description;
         $item->price = $request->price ?? 0;
-        
         $item->save();
 
         return redirect()->route('inventory.index')->with('success', 'Detail barang berhasil diperbarui!');

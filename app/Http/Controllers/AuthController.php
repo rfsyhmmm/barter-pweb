@@ -18,7 +18,7 @@ class AuthController extends Controller
     // registration
     public function register(Request $request)
     {
-        // VALIDASI KETAT: Menerima @its.ac.id ATAU @student.its.ac.id
+        // validasi email @its.ac.id atau @student.its.ac.id
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => [
@@ -27,7 +27,6 @@ class AuthController extends Controller
                 'email',
                 'max:255',
                 'unique:users',
-                // Regex baru: (student\.)? membuatnya bisa membaca kata 'student.' secara opsional
                 'regex:/^[a-zA-Z0-9._%+-]+@(student\.)?its\.ac\.id$/i' 
             ],
             'password' => 'required|string|min:8|confirmed',
@@ -36,8 +35,6 @@ class AuthController extends Controller
             'email.unique' => 'Email ini sudah terdaftar di sistem.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.'
         ]);
-
-        // ... (kode simpan user tetap sama)
 
         // Simpan user baru ke database
         $user = User::create([
@@ -48,7 +45,6 @@ class AuthController extends Controller
 
         // Otomatis login setelah berhasil mendaftar
         Auth::login($user);
-
         return redirect()->route('home')->with('success', 'Akun berhasil dibuat! Selamat datang di BarterPlace.');
     }
 
@@ -66,18 +62,28 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Coba lakukan autentikasi
+        // Coba lakukan autentikasi ke database
         if (Auth::attempt($credentials)) {
+            // Cek status sesaat setelah berhasil login
+            if (Auth::user()->status === 'banned') {
+                Auth::logout(); // Langsung tendang keluar lagi
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => 'Akses ditolak! Akun kamu telah diblokir oleh Admin.',
+                ])->onlyInput('email');
+            }
+
             $request->session()->regenerate();
 
             if (Auth::user()->role === 'admin') {
                 return redirect()->intended('/admin/dashboard');
             }
-
-            // PERBAIKAN: Gunakan route('home') untuk mengarah ke URL '/'
             return redirect()->intended(route('home'));
         }
-        // Jika gagal, kembalikan dengan pesan error
+        
+        // Jika gagal (email/pw salah), kembalikan dengan pesan error
         return back()->withErrors([
             'email' => 'Email atau password yang kamu masukkan salah.',
         ])->onlyInput('email');
@@ -87,10 +93,8 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect()->route('home')->with('success', 'Kamu telah berhasil keluar.');
     }
 }

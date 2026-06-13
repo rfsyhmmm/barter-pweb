@@ -11,16 +11,14 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReportController;
 
-// ==========================================
+
 // RUTE PUBLIK (Bisa diakses siapa saja)
-// ==========================================
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/faq', 'pages.faq')->name('faq');
 Route::get('/user/{id}', [ProfileController::class, 'show'])->name('user.show');
 
-// ==========================================
+
 // RUTE GUEST (Hanya untuk yang BELUM login)
-// ==========================================
 Route::middleware('guest')->group(function () {
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.store');
@@ -30,12 +28,8 @@ Route::middleware('guest')->group(function () {
 });
 
 
-
-
-// ==========================================
 // RUTE AUTH (Hanya untuk yang SUDAH login)
-// ==========================================
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'banned'])->group(function () {
     // Autentikasi
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     
@@ -43,9 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('inventory', InventoryController::class);
     Route::patch('/inventory/{id}/publish', [InventoryController::class, 'publish'])->name('inventory.publish');
 
-    // ==========================================
-    // ORDER & TRADE MANAGEMENT (Alur Baru Hibrida)
-    // ==========================================
+    // ORDER & TRADE MANAGEMENT
     // Halaman utama Orders (Tawaran Masuk & Keluar)
     Route::get('/orders', [TradeController::class, 'index'])->name('orders.index');
     
@@ -61,13 +53,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/trade/{id}/complete', [TradeController::class, 'complete'])->name('trade.complete');
     Route::delete('/trade/{id}/cancel', [TradeController::class, 'cancel'])->name('trade.cancel');
 
-    // (Rute lama OrderController untuk cancel / history bisa dihapus atau diamankan jika tidak bentrok)
-    Route::delete('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
-    Route::delete('/orders/{id}/history', [OrderController::class, 'destroyHistory'])->name('orders.destroyHistory');
-    Route::delete('/orders/clear-rejected', [OrderController::class, 'clearRejected'])->name('orders.clearRejected');
-    Route::patch('/orders/{id}/cancel-deal', [OrderController::class, 'cancelDeal'])->name('orders.cancelDeal');
-    // ==========================================
-
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -81,10 +66,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/item/{id}/report', [ReportController::class, 'create'])->name('report.create');
     Route::post('/item/{id}/report', [ReportController::class, 'store'])->name('report.store');
 
-    // ==========================================
+    
+
     // RUTE KHUSUS ADMIN
-    // ==========================================
-    Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         
         // Halaman Dashboard Admin
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');

@@ -83,19 +83,15 @@ class OrderController extends Controller
             $senderItem->status = 'traded'; // Barang sudah laku
             $senderItem->save();
         }
-        if ($receiverItem) {
-            $receiverItem->status = 'traded'; // Barang sudah laku
-            $receiverItem->save();
-        }
 
-        // 4. PENANGANAN MUTUAL MATCH (Tawaran Silang)
+        // 4. Terima tawaran kalau sama-sama nawar
         // Jika lawan juga menawarkan hal yang persis sama ke kita, jadikan accepted juga!
         \App\Models\Trade::where('status', 'pending')
             ->where('sender_item_id', $trade->receiver_item_id)
             ->where('receiver_item_id', $trade->sender_item_id)
             ->update(['status' => 'accepted']);
 
-        // 5. THE SWEEPER (Penyapuan Massal)
+        // 5. Hapus tawaran setelah laku
         // Cari SEMUA sisa transaksi 'pending' yang memperebutkan salah satu dari dua barang ini
         \App\Models\Trade::where('status', 'pending')
             ->where(function ($query) use ($trade) {

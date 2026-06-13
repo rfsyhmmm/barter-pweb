@@ -36,7 +36,7 @@ class TradeController extends Controller
      */
     public function create(string $itemId)
     {
-        // [TAMBAHAN BARU] Cek apakah Pembeli sudah punya nomor WA
+        // Cek apakah Pembeli sudah punya nomor WA
         if (empty(Auth::user()->whatsapp_number)) {
             return redirect()->route('profile.edit')->with('error', '⚠️ Akses ditolak: Silakan lengkapi Nomor WhatsApp kamu di profil terlebih dahulu agar penjual bisa menghubungimu nanti.');
         }
@@ -188,7 +188,7 @@ class TradeController extends Controller
     }
 
     /**
-     * FULFILLMENT COMPLETE: Pembeli mengonfirmasi barang diterima & THE SWEEPER aktif
+     * FULFILLMENT COMPLETE: Pembeli mengonfirmasi barang diterima & auto-reject aktif
      */
     public function complete(string $id)
     {
@@ -206,9 +206,7 @@ class TradeController extends Controller
             $trade->senderItem->update(['status' => 'traded']);
         }
 
-        // ==========================================
-        // THE SWEEPER (Penyapuan Konflik Otomatis)
-        // ==========================================
+        // mekanisme SWEEPER 
         // Ambil ID barang-barang yang terlibat dan sudah laku ini
         $itemIdsToSweep = array_filter([$trade->receiver_item_id, $trade->sender_item_id]);
 

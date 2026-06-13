@@ -14,7 +14,11 @@ class HomeController extends Controller
         $search = $request->input('search');
 
         // 2. Mulai query dasar
-        $query = Item::with('user')->where('status', 'available');
+        $query = Item::with('user')
+            ->whereHas('user', function($q) {
+                $q->where('status', 'active');
+            })
+            ->where('status', 'available');
 
         // 3. Sembunyikan barang milik sendiri
         if (Auth::check()) {

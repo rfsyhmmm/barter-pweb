@@ -38,13 +38,21 @@
                 </div>
             </div>
 
-            <div class="w-full md:w-auto bg-gray-50 p-5 sm:p-6 rounded-xl border border-gray-100 shadow-sm">
-                <p class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider text-center md:text-left">
-                    Tindakan Moderator</p>
+            <div
+                class="w-full md:w-auto bg-gray-50 p-5 sm:p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-3">
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider text-center md:text-left">
+                    Tindakan & Navigasi
+                </p>
+
+                <a href="{{ route('user.show', $user->id) }}" target="_blank"
+                    class="w-full px-6 py-3 rounded-xl font-bold text-sm transition shadow-sm bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-black text-center flex items-center justify-center gap-2">
+                    <span>👁️</span> Lihat Profil Publik
+                </a>
+
                 <form action="{{ route('admin.user.toggleBan', $user->id) }}" method="POST">
                     @csrf @method('PATCH')
                     <button type="submit" onclick="return confirm('Yakin ingin mengubah status akun ini?')"
-                        class="w-full md:w-auto px-6 py-3 rounded-xl font-bold text-sm transition shadow-sm
+                        class="w-full px-6 py-3 rounded-xl font-bold text-sm transition shadow-sm
                         {{ $user->status === 'active' ? 'bg-red-600 text-white hover:bg-red-700 hover:shadow-md' : 'bg-green-600 text-white hover:bg-green-700 hover:shadow-md' }}">
                         {{ $user->status === 'active' ? '🚨 Blokir Pengguna (Ban)' : '✅ Pulihkan Akun (Unban)' }}
                     </button>

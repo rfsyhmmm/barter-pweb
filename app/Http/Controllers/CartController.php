@@ -30,7 +30,6 @@ class CartController extends Controller
             'user_id' => Auth::id(),
             'item_id' => $request->item_id
         ]);
-
         return redirect()->back()->with('success', 'Barang berhasil disimpan ke keranjang!');
     }
 

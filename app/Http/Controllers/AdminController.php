@@ -10,42 +10,40 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
+    // load dashboard dan stats variable
     public function dashboard()
     {
         $totalUsers = User::where('role', 'user')->count();
         $totalItems = Item::count();
-        
-        // [PERBAIKAN] Mengubah parameter dari 'accepted' menjadi 'completed'
         $successfulTrades = Trade::where('status', 'completed')->count();
 
         $recentItems = Item::with('user')->latest()->take(5)->get();
         $usersList = User::where('role', 'user')->latest()->get();
-        
-        // Menarik data laporan masuk
         $reportsList = \App\Models\Report::with(['reporter', 'reportedUser', 'item'])->latest()->get();
 
         return view('admin.dashboard', compact('totalUsers', 'totalItems', 'successfulTrades', 'recentItems', 'usersList', 'reportsList'));
     }
 
-    // Fungsi melihat detail user
+    // menunjukkan list user
     public function showUser(string $id)
     {
         $user = User::findOrFail($id);
         return view('admin.user-show', compact('user'));
     }
 
-    // Fungsi melihat detail laporan
+    // Fungsi melihat detail laporan dari user
     public function showReport(string $id)
     {
         $report = \App\Models\Report::with(['reporter', 'reportedUser', 'item'])->findOrFail($id);
         return view('admin.report-show', compact('report'));
     }
 
+
     public function takedownItem(string $id)
     {
         $item = Item::findOrFail($id);
         
-        // Optimasi Penyimpanan: Hapus gambar fisik jika ada
+        // hapus gambar fisik jika ada
         if ($item->image_path) {
             $imagePath = public_path('images/items/' . $item->image_path); // Pastikan mengarah ke /items/
             if (file_exists($imagePath)) {

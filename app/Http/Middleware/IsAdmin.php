@@ -13,7 +13,6 @@ class IsAdmin
     {
         // Cegat jika belum login atau bukan admin
         if (!Auth::check() || Auth::user()->role !== 'admin') {
-            // PERBAIKAN: Ubah dari /home menjadi /
             return redirect('/')->with('error', 'Akses ditolak. Kamu bukan Admin.');
         }
 

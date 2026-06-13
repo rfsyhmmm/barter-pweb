@@ -6,6 +6,15 @@
             {{ $item->category }}
         </span>
 
+        @auth
+        @if(auth()->id() !== $item->user_id)
+        <a href="{{ route('report.create', $item->id) }}" title="Laporkan Barang Bermasalah"
+            class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-white/80 backdrop-blur-sm text-red-500 hover:bg-red-500 hover:text-white rounded-full shadow-sm z-10 transition duration-200 opacity-0 group-hover:opacity-100">
+            <span class="text-xs">🚩</span>
+        </a>
+        @endif
+        @endauth
+
         @if($item->image_path)
         <img src="{{ asset('images/items/' . $item->image_path) }}"
             class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
