@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TradeController;
 use App\Http\Controllers\InventoryController; 
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\OrderController; // (Opsional jika masih ada fungsi lama yang ingin dipakai)
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CartController;
