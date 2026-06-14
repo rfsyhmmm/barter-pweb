@@ -36,6 +36,9 @@ class TradeController extends Controller
      */
     public function create(string $itemId)
     {
+        if (Auth::user()->role === 'admin') {
+            abort(403, 'Admin tidak dapat mengajukan penawaran.');
+        }
         // Cek apakah Pembeli sudah punya nomor WA
         if (empty(Auth::user()->whatsapp_number)) {
             return redirect()->route('profile.edit')->with('error', '⚠️ Akses ditolak: Silakan lengkapi Nomor WhatsApp kamu di profil terlebih dahulu agar penjual bisa menghubungimu nanti.');
@@ -56,6 +59,10 @@ class TradeController extends Controller
      */
     public function store(Request $request)
     {
+        if (Auth::user()->role === 'admin') {
+            abort(403, 'Admin tidak dapat mengajukan penawaran.');
+        }
+
         $request->validate([
             'receiver_item_id' => 'required|exists:items,id',
             'receiver_id'      => 'required|exists:users,id',

@@ -46,7 +46,7 @@
 
         <div class="flex gap-2 mt-auto">
             @auth
-            @if(auth()->id() !== $item->user_id)
+            @if(auth()->id() !== $item->user_id && auth()->user()->role !== 'admin')
             <a href="{{ route('trade.propose', $item->id) }}"
                 class="flex-1 bg-black text-white text-center text-xs font-bold py-2.5 rounded-xl hover:bg-gray-800 transition shadow-sm flex items-center justify-center">
                 Ajukan Penawaran
@@ -64,7 +64,7 @@
             @else
             <button disabled
                 class="w-full bg-gray-100 text-gray-400 text-xs font-bold py-2.5 rounded-xl cursor-not-allowed">
-                Barangmu Sendiri
+                {{ auth()->user()->role === 'admin' ? 'Mode Admin' : 'Barangmu Sendiri'}}
             </button>
             @endif
             @else

@@ -119,7 +119,8 @@
         <div class="max-w-5xl mx-auto">
             <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Pilih dari Inventory Kamu</h3>
 
-            <div class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+            <div id="inventory-list"
+                class="flex gap-4 overflow-x-auto pb-4 custom-scrollbar transition-all duration-300">
                 @forelse($myInventory as $item)
                 <div class="inventory-card min-w-[150px] max-w-[150px] bg-gray-50 p-3 rounded-2xl border border-gray-200 cursor-pointer hover:border-green-500 hover:shadow-md transition duration-200"
                     data-id="{{ $item->id }}" data-title="{{ $item->title }}" data-category="{{ $item->category }}"
@@ -157,13 +158,26 @@
                     <p class="text-xs text-gray-500 mt-0.5">Penjual akan meninjau tawaranmu dan membalas via WA.</p>
                 </div>
 
-                <button id="btn-submit" type="submit" disabled
-                    class="w-full sm:w-auto bg-gray-300 text-gray-500 font-bold text-sm px-8 py-3.5 rounded-xl cursor-not-allowed transition shadow-sm">
-                    Pilih barang dulu
-                </button>
+
+                <span class="flex items-center gap-2">
+                    <button type="submit" form="cart-form" title="Tambah ke Keranjang"
+                        class="bg-gray-50 hover:bg-green-50 hover:text-green-700 text-gray-600 border border-gray-200 p-2.5 rounded-xl transition flex items-center justify-center w-[60px] cursor-pointer text-sm">
+                        🛒
+                    </button>
+                    <button id="btn-submit" type="submit" disabled
+                        class="w-full sm:w-auto bg-gray-300 text-gray-500 font-bold text-sm px-8 py-3.5 rounded-xl cursor-not-allowed transition shadow-sm">
+                        Pilih barang dulu
+                    </button>
+                </span>
+
             </div>
         </div>
     </section>
+</form>
+
+<form id="cart-form" action="{{ route('cart.store') }}" method="POST" class="hidden">
+    @csrf
+    <input type="hidden" name="item_id" value="{{ $targetItem->id }}">
 </form>
 
 <style>
@@ -199,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const stateFilled = document.getElementById('filled-state');
     const stateCash = document.getElementById('cash-state');
 
-    const inventorySheet = document.getElementById('inventory-sheet');
+    const inventoryList = document.getElementById('inventory-list');
     const btnSubmit = document.getElementById('btn-submit');
     const inputSenderItem = document.getElementById('input-sender-item');
 
@@ -269,8 +283,8 @@ document.addEventListener('DOMContentLoaded', function() {
             slotBox.classList.remove('border-dashed', 'border-gray-300');
             slotBox.classList.add('border-solid', 'border-blue-200', 'bg-blue-50/30');
 
-            inventorySheet.style.opacity = '0.5';
-            inventorySheet.style.pointerEvents = 'none';
+            inventoryList.style.opacity = '0.5';
+            inventoryList.style.pointerEvents = 'none';
 
             enableSubmitBtn("💳 Ajukan Pembelian", "bg-blue-600", "hover:bg-blue-700");
 
@@ -285,8 +299,8 @@ document.addEventListener('DOMContentLoaded', function() {
             slotBox.classList.remove('border-solid', 'border-blue-200', 'bg-blue-50/30');
             slotBox.classList.add('border-dashed', 'border-gray-300');
 
-            inventorySheet.style.opacity = '1';
-            inventorySheet.style.pointerEvents = 'auto';
+            inventoryList.style.opacity = '1';
+            inventoryList.style.pointerEvents = 'auto';
 
             if (selectedItemId) {
                 stateFilled.classList.remove('hidden');
